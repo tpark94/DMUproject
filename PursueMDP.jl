@@ -1,3 +1,6 @@
+# Many parts of this implementation is inspired & taken from
+# https://github.com/zsunberg/LaserTag.jl.git
+
 # install the POMDPs.jl interface
 # Pkg.clone("https://github.com/sisl/POMDPs.jl.git")
 # Pkg.clone("https://github.com/JuliaArrays/StaticArrays.jl")
@@ -8,7 +11,7 @@ using Parameters
 using Distributions
 using AutoHashEquals
 
-const grid = SVector{2, Float64}
+const grid = SVector{2, Float64} # {col, row}
 
 # State space -- agent position (xa, ya) & target position (xt, yt)
 @auto_hash_equals immutable PursueState
@@ -16,6 +19,16 @@ const grid = SVector{2, Float64}
     target::grid
     caught::bool
 end
+
+# grid world
+immutable world
+    nrows::Int64
+    ncols::Int64
+end
+
+# must see if agent is inside grid world
+inside(w::world, c::grid) = 0 < c[1] <= w.n_cols && 0 < c[2] <= w.n_rows
+
 
 # Action space
 const ACTION_NAMES = SVector("up", "down", "right", "left", "catch")
@@ -27,9 +40,6 @@ const ACTION_DIRS  = SVector(Grid(0,1), Grid(0,-1), Grid(1,0), Grid(-1,0), Grid(
     r_capture::Float64 = 10   # reward for capturing target
     discount::Float64  = 0.95 # gamma
 end
-
-# ACTION (A)
-actions(p::PursueMDP) = 1:5;
 
 # transiton model distribution .....
 immutable PursueTransDist
@@ -53,8 +63,17 @@ function TargetMovement(rng::AbstractRNG, d::PursueTransDist)
     return PursueState(d.apos, tpos, false)
 end
 
+# What's needed for MDP solver
+
+# STATES (S)
+
+# ACTION (A)
+n_actions(mdp::PursueMDP) = 5;
+actions(mdp::PursueMDP) = 1:n_actions(mdp);
+function action_index(mdp::PursueMDP, a::Symbol)
+
 # TRANSITION MODEL (T)
-function transition(p::PursueMDP, s::PursueState, a::Int)
+function transition(mdp::PursueMDP, s::PursueState, a::Int)
     d.pd = [0.2 0.2 0.2 0.2 0.2] # uniform when agent is pursuing
 
 
