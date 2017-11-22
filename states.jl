@@ -1,6 +1,8 @@
 # STATES (S)
 states(mdp::PursueMDP) = states(mdp.world)
 
+npos(w::World) = (w.nrows * w.ncols) # num. of positions of an anget
+
 function states(w::World)
     vec = Array{PursueState}(npos(w)^2+1)
 
