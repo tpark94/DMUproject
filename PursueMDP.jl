@@ -31,14 +31,10 @@ immutable World
     nrows::Int64
     ncols::Int64
 end
-npos(w::World) =(w.nrows * w.ncols) # num. of positions of an anget
+npos(w::World) = (w.nrows * w.ncols) # num. of positions of an anget
 
 # must see if agent is inside grid world
 inside(w::World, c::Grid) = 0 < c[1] <= w.n_cols && 0 < c[2] <= w.n_rows
-
-# Action space
-const ACTION_NAMES = SVector("up", "down", "right", "left", "catch")
-const ACTION_DIRS  = SVector(Grid(0,1), Grid(0,-1), Grid(1,0), Grid(-1,0), Grid(0,0))
 
 # MDP when target's KNOWN intention is to evade - agent pursues
 @With_kw immutable PursueMDP <: MDP{PursueState, Symbol}
@@ -78,43 +74,13 @@ function pdf(d::PursueTransDist, s::PursueState)
 
 =#
 
-###############################################
+
+
 # What's needed for MDP solver
 
-# STATES (S)
-states(mdp::PursueMDP) = states(mdp.world)
+include("states.jl")
+include("actions.jl")
 
-function states(w::World)
-    vec = Array{PursueState}(npos(w)^2+1)
-
-    for i in 1:w.ncols, j in 1:w.nrows, k in 1:w.ncols, l in 1:w.nrows
-        s = PursueState(Grid(i,j), Grid(k,l), false)
-        vec[state_index(w, s)] = s
-    end
-    vec[end] = PursueState(Grid(1,1), Grid(1,1), true)
-    return vec
-end
-
-state_index(mdp::PursueMDP, s::PursueState) = state_index(mdp.world, s)
-
-function state_index(w::World, s::PursueState)
-    r = w.nrows
-    c = w.ncols
-    if s.terminal
-       return npos(w)^2 + 1
-    else
-       a = s.agent
-       t = s.target
-       return sub2ind((c,r,c,r), a[1], a[2], t[1], t[2])
-    end
-end
-
-n_states(mdp::PursueState) = npos(mdp.world)^2 + 1
-
-# ACTION (A)
-n_actions(mdp::PursueMDP) = 5;
-actions(mdp::PursueMDP) = 1:n_actions(mdp);
-# function action_index(mdp::PursueMDP, a::Symbol)
 
 #=
 # TRANSITION MODEL (T)
