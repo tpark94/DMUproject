@@ -28,4 +28,4 @@ function state_index(w::World, s::PursueState)
     end
 end
 
-n_states(mdp::PursueState) = npos(mdp.world)^2 + 1
+n_states(mdp::PursueMDP) = npos(mdp.world)^2 + 1
