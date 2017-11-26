@@ -71,37 +71,21 @@ function transition(mdp::PursueMDP, s::PursueState, a::Symbol)
     agent = s.agent
     w = mdp.world
 
-    # opponent behavior (see base_tag.cpp line 576)
-    # 0.4 chance of moving in x direction
-    if target[1] == agent[1]
-       if inside(w, target + Grid(1,0))
-           pd[2] += 0.2
-       end
-       if inside(w, target + Grid(-1,0))
-           pd[4] += 0.2
-       end
-    elseif target[1] > agent[1] && inside(w, target + Grid(1,0))
-       pd[2] += 0.4
-    elseif target[1] < agent[1] && inside(w, target + Grid(-1,0))
-       pd[4] += 0.4
+    # lets see how many adjacent cells are boundary, and assign random movement probability
+    cnt = 0
+    iswall = falses(1,5)
+    for i in 1:4
+        if !inside(w, target + ACTION_DIR[i])
+            cnt = cnt + 1
+            iswall[i] = true
+        end
     end
-
-    # 0.4 chance of moving in y direction
-    if target[2] == agent[2]
-       if inside(w, target + Grid(0,1))
-           pd[1] += 0.2
-       end
-       if inside(w, target + Grid(0,-1))
-           pd[3] += 0.2
-       end
-    elseif target[2] > agent[2] && inside(w, target + Grid(0,1))
-       pd[1] += 0.4
-    elseif target[2] < agent[2] && inside(w, target + Grid(0,-1))
-       pd[3] += 0.4
+    rate = 1.0/(5-cnt)
+    for i in 1:5
+        if !iswall[i]
+            pd[i] = rate
+        end
     end
-
-    # 0.2 + all out of bounds mass chance staying the same
-    pd[5] = 1.0 - sum(pd)
 
     a_ind = action_index(mdp, a)
     if inside(w, agent + ACTION_DIR[a_ind])

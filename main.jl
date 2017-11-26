@@ -28,7 +28,7 @@ end
 frames = Frames(MIME("image/png"), fps=2)
 
 print("Simulating and generating Pursue gif")
-for step in stepthrough(mdp, policy, "a,r,s", max_steps = 1000)
+for step in stepthrough(mdp, policy, "a,r,s", max_steps = 150)
     push!(frames, PursueVis(mdp, step...))
     print('.')
 end
