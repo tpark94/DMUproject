@@ -1,6 +1,6 @@
 __precompile__()
 
-module PursueMDP
+module Pursue
 
 # Many parts of this implementation is inspired & taken from
 # https://github.com/zsunberg/LaserTag.jl.git
@@ -24,13 +24,14 @@ importall POMDPs
 
 #POMDPs.add("MCTS")
 #POMDPs.add("DiscreteValueIteration")
-using MCTS
 #using DiscreteValueIteration
 
 export
-    Grid
-    PursueState
-    PursueMDP
+    Grid,
+    PursueState,
+    PursueMDP,
+
+    PursueVis
 
 
 
@@ -61,6 +62,9 @@ inside(w::World, c::Grid) = 0 < c[1] <= w.ncols && 0 < c[2] <= w.nrows
     world::World       = World(15, 15)
 end
 
+ncols(mdp::PursueMDP) = mdp.world.ncols
+nrows(mdp::PursueMDP) = mdp.world.nrows
+
 isterminal(mdp::PursueMDP, s::PursueState) = s.terminal
 discount(mdp::PursueMDP) = mdp.discount
 
@@ -79,6 +83,9 @@ function reward(mdp::PursueMDP, s::PursueState, a::Symbol, sp::PursueState)
     end
 end
 
+initial_state(mdp::PursueMDP, rng::AbstractRNG) = PursueState((1,2), (7,8), false)
+
+include("PursueVis.jl")
 
 #######################################
 

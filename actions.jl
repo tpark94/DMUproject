@@ -1,4 +1,5 @@
 const ACTION_DIR = SVector(Grid(0,1), Grid(1,0), Grid(0,-1), Grid(-1,0), Grid(0,0))
+const ACTION_NAMES = SVector("UP", "RIGHT", "DOWN", "LEFT", "CATCH")
 
 # ACTION (A)
 n_actions(mdp::PursueMDP) = 5;
