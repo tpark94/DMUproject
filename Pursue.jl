@@ -56,8 +56,8 @@ inside(w::World, c::Grid) = 0 < c[1] <= w.ncols && 0 < c[2] <= w.nrows
 
 # MDP when target's KNOWN intention is to evade - agent pursues
 @with_kw immutable PursueMDP <: MDP{PursueState, Symbol}
-    #r_move::Float64    = -0.1 # reward for moving
-    r_capture::Float64 = 1000.   # reward for capturing target
+    r_move::Float64    = -0.1 # reward for moving
+    r_capture::Float64 = 100.   # reward for capturing target
     discount::Float64  = 0.95 # gamma
     world::World       = World(15, 15)
 end
@@ -78,12 +78,14 @@ function reward(mdp::PursueMDP, s::PursueState, a::Symbol, sp::PursueState)
     if a==:catch && s.agent == s.target
         @assert sp.terminal
         return mdp.r_capture
+    elseif action_index(mdp, a) <= 4
+        return mdp.r_move
     else
         return 0.
     end
 end
 
-initial_state(mdp::PursueMDP, rng::AbstractRNG) = PursueState((1,2), (7,8), false)
+initial_state(mdp::PursueMDP, rng::AbstractRNG) = PursueState((1,2), (10,8), false)
 
 include("PursueVis.jl")
 
