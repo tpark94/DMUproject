@@ -1,9 +1,9 @@
 const ACTION_DIR = SVector(Grid(0,1), Grid(1,0), Grid(0,-1), Grid(-1,0), Grid(0,0))
-const ACTION_NAMES = SVector("UP", "RIGHT", "DOWN", "LEFT", "CATCH")
+const ACTION_NAMES = SVector("UP", "RIGHT", "DOWN", "LEFT", "STAY")
 
 # ACTION (A)
 n_actions(mdp::PursueMDP) = 5;
-actions(mdp::PursueMDP) = [:up, :right, :down, :left, :catch];
+actions(mdp::PursueMDP) = [:up, :right, :down, :left, :stay];
 function action_index(mdp::PursueMDP, a::Symbol)
 
     if a == :up
@@ -14,7 +14,7 @@ function action_index(mdp::PursueMDP, a::Symbol)
         return 3
     elseif a == :left
         return 4
-    elseif a == :catch
+    elseif a == :stay
         return 5
     end
 end

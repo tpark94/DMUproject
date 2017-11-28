@@ -33,8 +33,6 @@ export
 
     PursueVis
 
-
-
 #####################################################
 const Grid = SVector{2, Int64} # {col, row}
 
@@ -75,7 +73,7 @@ include("transition.jl")
 
 function reward(mdp::PursueMDP, s::PursueState, a::Symbol, sp::PursueState)
 
-    if a==:catch && s.agent == s.target
+    if a==:stay && s.agent == s.target
         @assert sp.terminal
         return mdp.r_capture
     elseif action_index(mdp, a) <= 4
