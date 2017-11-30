@@ -61,6 +61,7 @@ end
 
 # TRANSITION MODEL (T)
 function transition(mdp::PursueMDP, s::PursueState, a::Symbol)
+
     if s.terminal || a == :stay && s.agent == s.target
        return PursueTransDist(true, s.agent, s.target, SVector(1., 0., 0., 0., 0.))
     end

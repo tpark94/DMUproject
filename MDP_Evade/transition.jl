@@ -25,7 +25,7 @@ end
 
 function pdf(d::EvadeTransDist, s::EvadeState)::Float64
     if d.terminal
-        return s.terminal ? 1.0 : 0.0
+        return s.terminal ? true : false
     elseif s.terminal || s.agent != d.apos || sum(abs, s.target-d.tpos_prev) > 1
         return 0.0
     elseif s.target == d.tpos_prev
@@ -61,7 +61,8 @@ end
 
 # TRANSITION MODEL (T)
 function transition(mdp::EvadeMDP, s::EvadeState, a::Symbol)
-    if s.terminal || a == :stay && s.agent == s.target
+
+    if s.terminal || s.agent == s.target
        return EvadeTransDist(true, s.agent, s.target, SVector(1., 0., 0., 0., 0.))
     end
 
@@ -71,8 +72,37 @@ function transition(mdp::EvadeMDP, s::EvadeState, a::Symbol)
     agent = s.agent
     w = mdp.world
 
-    # transition probabilities of the target
-    
+    # transition probabilities (pd) of the target
+    if target[1] == agent[1] # above or below
+        if target[2] < agent[2]
+            pd[1] += 0.8
+        elseif target[2] > agent[2]
+            pd[3] += 0.8
+        end
+    elseif target[1] < agent[1] # target on right
+        if target[2] < agent[2]
+            pd[1] += 0.4
+            pd[2] += 0.4
+        elseif target[2] > agent[2]
+            pd[2] += 0.4
+            pd[3] += 0.4
+        else
+            pd[2] += 0.8
+        end
+    elseif target[1] > agent[1] # target on left
+        if target[2] < agent[2]
+            pd[1] += 0.4
+            pd[4] += 0.4
+        elseif target[2] > agent[2]
+            pd[3] += 0.4
+            pd[4] += 0.4
+        else
+            pd[4] += 0.8
+        end
+    end
+
+    pd[5] = 1.0 - sum(pd)
+
 
     # move the agent
     a_ind = action_index(mdp, a)

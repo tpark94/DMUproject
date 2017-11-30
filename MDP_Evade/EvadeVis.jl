@@ -1,19 +1,19 @@
 using TikzPictures
 
-type PursueVis
-    m::PursueMDP
+type EvadeVis
+    m::EvadeMDP
     a::Nullable{Any}
     r::Nullable{Any}
     s::Nullable{Any}
 end
-PursueVis(m; s=nothing, a=nothing, o=nothing) = PursueVis(m, a, r, s)
-PursueVis(m::PursueMDP, ars::Tuple) = PursueVis(m, ars...)
+EvadeVis(m; s=nothing, a=nothing, o=nothing) = EvadeVis(m, a, r, s)
+EvadeVis(m::EvadeMDP, ars::Tuple) = EvadeVis(m, ars...)
 
-Base.show(io::IO, mime::MIME"image/svg+xml", v::PursueVis) = show(io, mime, tikz_pic(v))
+Base.show(io::IO, mime::MIME"image/svg+xml", v::EvadeVis) = show(io, mime, tikz_pic(v))
 
 #############################################
 # Functions
-function Base.show(io::IO, mime::MIME"image/png", v::PursueVis)
+function Base.show(io::IO, mime::MIME"image/png", v::EvadeVis)
     fname = tempname()
     save(PDF(fname), tikz_pic(v))
     run(`convert -flatten $(fname*".pdf") $(fname*".png")`)
@@ -30,7 +30,7 @@ function fill_square(o::IO, x, y, color, opacity=0.5) # maybe opacity should be 
     println(o, "\\fill[$(color), opacity=$opacity] ($((x-1) * sqsize),$((y-1) * sqsize)) rectangle +($sqsize,$sqsize);")
 end
 
-function tikz_pic(v::PursueVis)
+function tikz_pic(v::EvadeVis)
     m = v.m
     w = m.world
     o = IOBuffer()
@@ -70,7 +70,7 @@ function tikz_pic(v::PursueVis)
     return TikzPicture(String(take!(o)), options="scale=1.25")
 end
 
-function Base.show(io::IO, mime::MIME"text/plain", v::PursueVis)
+function Base.show(io::IO, mime::MIME"text/plain", v::EvadeVis)
     for y in nrows(v.m):-1:1
         for x in 1:ncols(v.m)
             printed = false

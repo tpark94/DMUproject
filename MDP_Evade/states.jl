@@ -21,11 +21,13 @@ function state_index(w::World, s::EvadeState)
     r = w.nrows
     c = w.ncols
     if s.terminal
-       return npos(w)^2 + 1
+        return npos(w)^2 + 1
     else
-       a = s.agent
-       t = s.target
-       return sub2ind((c,r,c,r), a[1], a[2], t[1], t[2])
+        a = s.agent
+        t = s.target
+
+        #println("agent: ", s.agent, ", target: ", s.target)
+        return sub2ind((c,r,c,r), a[1], a[2], t[1], t[2])
     end
 end
 

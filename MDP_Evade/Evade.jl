@@ -54,7 +54,7 @@ inside(w::World, c::Grid) = 0 < c[1] <= w.ncols && 0 < c[2] <= w.nrows
 
 # MDP when target's KNOWN intention is to evade - agent pursues
 @with_kw immutable EvadeMDP <: MDP{EvadeState, Symbol}
-    r_move::Float64    = 0.0 # reward for moving
+    r_move::Float64    = -0.1 # reward for moving
     r_caught::Float64 = -10.0   # reward for capturing target
     discount::Float64  = 0.95 # gamma
     world::World       = World(15, 15)
@@ -62,9 +62,6 @@ end
 
 ncols(mdp::EvadeMDP) = mdp.world.ncols
 nrows(mdp::EvadeMDP) = mdp.world.nrows
-
-isterminal(mdp::EvadeMDP, s::EvadeState) = s.terminal
-discount(mdp::EvadeMDP) = mdp.discount
 
 # What's needed for MDP solver
 include("states.jl")
@@ -76,14 +73,19 @@ function reward(mdp::EvadeMDP, s::EvadeState, a::Symbol, sp::EvadeState)
     if s.agent == s.target
         @assert sp.terminal
         return mdp.r_caught
-    elseif action_index(mdp, a) <= 4
+    end
+
+    if action_index(mdp, a) <= 4
         return mdp.r_move
     else
         return 0.
     end
 end
 
-initial_state(mdp::EvadeMDP, rng::AbstractRNG) = PursueState((1,2), (10,8), false)
+isterminal(mdp::EvadeMDP, s::EvadeState) = s.terminal
+discount(mdp::EvadeMDP) = mdp.discount
+
+initial_state(mdp::EvadeMDP, rng::AbstractRNG) = EvadeState((1,2), (10,8), false)
 
 include("EvadeVis.jl")
 
