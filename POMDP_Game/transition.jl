@@ -3,26 +3,27 @@ immutable GameTransDist
     terminal::Bool
     apos::Grid
     tpos_prev::Grid
-    target_pd::SVector{5, Float64} # movement prob. dist. of TARGET
+    #intention::Bool # mirrors GameState's tar_intent
+    pd::SVector{5, Float64} # movement prob. dist. of TARGET
 end
-GameDist(apos::Grid, tpos_prev::Grid, target_pd::AbstractVector) =
-                        GameTransDist(false, apos, tpos_prev, target_pd)
+GameTransDist(apos::Grid, tpos_prev::Grid, pd::AbstractVector) =
+                        GameTransDist(false, apos, tpos_prev, pd)
 
 # sample from distribution
 function rand(rng::AbstractRNG, d::GameTransDist)
     if d.terminal
-        return GameState(d.apos, d.tpos_prev, d.intention, true)
+        return GameState(d.apos, d.tpos_prev, true)
     end
 
     # sample for target movement
-    i = sample(rng, Weights(d.target_pd, 1.0))
+    i = sample(rng, Weights(d.pd, 1.0))
     if i < 5
         tpos = d.tpos_prev + ACTION_DIR[i]
     else
         tpos = d.tpos_prev
     end
 
-    return GameState(d.apos, tpos, d.intention, false)
+    return GameState(d.apos, tpos, false)
 end
 
 # prob. distribution function of distribution
@@ -61,7 +62,7 @@ function Base.next(d::GameTransDist, i::Int)
     end
 end
 
-# TRANSITION MODEL (T)
+# TRANSITION MODEL (T) - return distribution
 function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
 
     if s.terminal || a == :stay && s.agent == s.target
@@ -74,23 +75,58 @@ function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
     agent = s.agent
     w = pomdp.world
 
-    # lets see how many adjacent cells are boundary, and assign random movement probability
-    cnt = 0
-    iswall = falses(1,5)
-    for i in 1:4
-        if !inside(w, target + ACTION_DIR[i])
-            cnt = cnt + 1
-            iswall[i] = true
+    # Target's movement depends on its true intention
+    if target_true_intention # if pursuing target -- target moves randomly
+        cnt = 0
+        iswall = falses(1,5)
+        for i in 1:4
+            if !inside(w, target + ACTION_DIR[i])
+                cnt = cnt + 1
+                iswall[i] = true
+            end
         end
-    end
-    rate = 1.0/(5-cnt)
-    for i in 1:5
-        if !iswall[i]
-            pd[i] = rate
+        rate = 1.0/(5-cnt)
+        for i in 1:5
+            if !iswall[i]
+                pd[i] = rate
+            end
         end
+    else # if evading target -- target comes after you!
+        if target[1] == agent[1] # above or below
+            if target[2] < agent[2]
+                pd[1] += 0.8
+            elseif target[2] > agent[2]
+                pd[3] += 0.8
+            end
+        elseif target[1] < agent[1] # target on right
+            if target[2] < agent[2]
+                pd[1] += 0.4
+                pd[2] += 0.4
+            elseif target[2] > agent[2]
+                pd[2] += 0.4
+                pd[3] += 0.4
+            else
+                pd[2] += 0.8
+            end
+        elseif target[1] > agent[1] # target on left
+            if target[2] < agent[2]
+                pd[1] += 0.4
+                pd[4] += 0.4
+            elseif target[2] > agent[2]
+                pd[3] += 0.4
+                pd[4] += 0.4
+            else
+                pd[4] += 0.8
+            end
+        end
+
+        pd[5] = 1.0 - sum(pd)
     end
 
-    a_ind = action_index(mdp, a)
+    # transition is deterministic
+    #   given action (a), sp has no uncertainty
+    #   s.tar_intent isn't affected by transition
+    a_ind = action_index(pomdp, a)
     if inside(w, agent + ACTION_DIR[a_ind])
        apos_next = agent + ACTION_DIR[a_ind]
     else
