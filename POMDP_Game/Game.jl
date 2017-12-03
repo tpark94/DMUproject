@@ -35,14 +35,11 @@ const Grid = SVector{2, Int64} # {col, row}
 # false - evade target
 const target_true_intention = true # TRUE - we pursue
 
-cnt_p = 1
-cnt_e = 1
-
 # State space -- agent position (xa, ya) & target position (xt, yt)
 @auto_hash_equals immutable GameState
     agent::Grid
     target::Grid
-    #tar_intent::Bool # true - pursue, false - evade
+    tar_intent::Symbol
     terminal::Bool
 end
 # tar_intent of GameState is NOT target's true intention, but rather
@@ -66,7 +63,7 @@ end
 inside(w::World, c::Grid) = 0 < c[1] <= w.ncols && 0 < c[2] <= w.nrows
 
 # POMDP{state, action, observation}
-@with_kw immutable GamePOMDP <: MDP{GameState, Symbol}
+@with_kw immutable GamePOMDP <: POMDP{GameState, Symbol, Symbol}
     r_move::Float64       = -0.1 # reward for moving
     r_capture::Float64    = 100.0   # reward for capturing target
     r_caught::Float64     = -100.0
@@ -87,26 +84,12 @@ discount(pomdp::GamePOMDP) = pomdp.discount
 include("states.jl")
 include("actions.jl")
 include("transition.jl")
-
-observation(pomdp::GamePOMDP, sp::GameState) = sp
+include("observations.jl")
+include("initial.jl")
 
 function reward(pomdp::GamePOMDP, s::GameState, a::Symbol, sp::GameState)
 
-    old_dist = find_distance(s)
-    new_dist = find_distance(sp)
-
-    if new_dist >= old_dist # moved away - we must pursue
-        global cnt_p += 1
-    else
-        global cnt_e += 1
-    end
-
-    prob_pursue = rand(Beta(cnt_p, cnt_e))
-    pd = [prob_pursue, 1-prob_pursue]
-    intention = [true false]
-    pursue = sample(intention, Weights(pd, 1.0))
-
-    if pursue # pursue
+    if s.tar_intent == :pursue # pursue
         if a==:stay && s.agent == s.target
             #@assert sp.terminal
             return pomdp.r_capture
@@ -127,8 +110,6 @@ function reward(pomdp::GamePOMDP, s::GameState, a::Symbol, sp::GameState)
         end
     end
 end
-
-initial_state(pomdp::GamePOMDP, rng::AbstractRNG) = GameState((1,2), (10,8), false)
 
 include("GameVis.jl")
 

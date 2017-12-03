@@ -3,16 +3,16 @@ immutable GameTransDist
     terminal::Bool
     apos::Grid
     tpos_prev::Grid
-    #intention::Bool # mirrors GameState's tar_intent
+    intention::Symbol # mirrors GameState's tar_intent
     pd::SVector{5, Float64} # movement prob. dist. of TARGET
 end
-GameTransDist(apos::Grid, tpos_prev::Grid, pd::AbstractVector) =
-                        GameTransDist(false, apos, tpos_prev, pd)
+GameTransDist(apos::Grid, tpos_prev::Grid, intention::Symbol, pd::AbstractVector) =
+                        GameTransDist(false, apos, tpos_prev, intention, pd)
 
 # sample from distribution
 function rand(rng::AbstractRNG, d::GameTransDist)
     if d.terminal
-        return GameState(d.apos, d.tpos_prev, true)
+        return GameState(d.apos, d.tpos_prev, d.intention, true)
     end
 
     # sample for target movement
@@ -23,7 +23,7 @@ function rand(rng::AbstractRNG, d::GameTransDist)
         tpos = d.tpos_prev
     end
 
-    return GameState(d.apos, tpos, false)
+    return GameState(d.apos, tpos, d.intention, false)
 end
 
 # prob. distribution function of distribution
@@ -56,9 +56,9 @@ Base.start(d::GameTransDist) = 1
 Base.done(d::GameTransDist, i::Int) = i > 5 || d.terminal && i > 1
 function Base.next(d::GameTransDist, i::Int)
     if d.terminal
-        return (GameState(d.apos, d.tpos_prev, true), i+1)
+        return (GameState(d.apos, d.tpos_prev, d.intention, true), i+1)
     else
-        return (GameState(d.apos, d.tpos_prev+ACTION_DIR[i], false), i+1)
+        return (GameState(d.apos, d.tpos_prev+ACTION_DIR[i], d.intention, false), i+1)
     end
 end
 
@@ -66,7 +66,7 @@ end
 function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
 
     if s.terminal || a == :stay && s.agent == s.target
-       return GameTransDist(true, s.agent, s.target, SVector(1., 0., 0., 0., 0.))
+       return GameTransDist(true, s.agent, s.target, s.tar_intent, SVector(1., 0., 0., 0., 0.))
     end
 
     pd = fill!(MVector{5, Float64}(), 0.0)
@@ -133,5 +133,5 @@ function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
        apos_next = agent
     end
 
-    return GameTransDist(apos_next, target, pd)
+    return GameTransDist(apos_next, target, s.tar_intent, pd)
 end

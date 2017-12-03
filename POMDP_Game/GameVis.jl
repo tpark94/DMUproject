@@ -5,9 +5,11 @@ type GameVis
     a::Nullable{Any}
     r::Nullable{Any}
     s::Nullable{Any}
+    o::Nullable{Any}
+    b::Nullable{Any}
 end
-GameVis(m; s=nothing, a=nothing, o=nothing) = GameVis(m, a, r, s)
-GameVis(m::GamePOMDP, ars::Tuple) = GameVis(m, ars...)
+GameVis(m; s=nothing, a=nothing, o=nothing, b=nothing, r=nothing) = GameVis(m, a, r, s, o, b)
+GameVis(m::GamePOMDP, arsobp::Tuple) = GameVis(m, arsobp...)
 
 Base.show(io::IO, mime::MIME"image/svg+xml", v::GameVis) = show(io, mime, tikz_pic(v))
 
