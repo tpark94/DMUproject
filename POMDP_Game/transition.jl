@@ -65,7 +65,7 @@ end
 # TRANSITION MODEL (T) - return distribution
 function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
 
-    if s.terminal || a == :stay && s.agent == s.target
+    if s.terminal || s.agent == s.target
        return GameTransDist(true, s.agent, s.target, s.tar_intent, SVector(1., 0., 0., 0., 0.))
     end
 

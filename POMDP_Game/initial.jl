@@ -13,7 +13,7 @@ end
 
 function pdf(b::GameInitialBelief, s::GameState)
   if !s.terminal && s.agent==b.agent_init && s.target==b.target_init
-    return 0.5
+    return 1/(2*15^2)
   else
     return 0.0
   end

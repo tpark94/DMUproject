@@ -1,5 +1,6 @@
 # (Z) - observation space
 observations(pomdp::GamePOMDP) = [:pursue, :evade]
+n_observations(pomdp::GamePOMDP) = 2
 
 # observation output distribution
 #   - binary (intention)
@@ -21,17 +22,14 @@ function rand(rng::AbstractRNG, d::GameObsDist)
     elseif i == 2
         intent = :evade
     end
-    return GameState(d.apos, d.tpos, intent, false)
+    return intent
 end
 
 # prob. distribution function of observation
-function pdf(d::GameObsDist, s::GameState)::Float64
-    if s.terminal
-        return 1.0
-    end
+function pdf(d::GameObsDist, o::Symbol)
 
-    if s.tar_intent == :purse
-        return d.intend_pd[1]
+    if o==:pursue
+        return d.intent_pd[1]
     else
         return d.intent_pd[2]
     end
@@ -51,6 +49,10 @@ dist_prev  = Dist(sqrt(7^2 + 8^2))
 
 # return observation distribution ....
 function observation(pomdp::GamePOMDP, a::Symbol, sp::GameState)
+    return observation(pomdp, sp)
+end
+
+function observation(pomdp::GamePOMDP, sp::GameState)
 
     #olddist = find_distance(s)
     olddist = dist_prev.dist

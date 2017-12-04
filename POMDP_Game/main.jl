@@ -1,26 +1,35 @@
 include("Game.jl")
 using .Game
 
-importall POMDPs
-
 #Pkg.add("Reel")
 using Reel
 using POMDPToolbox
 using POMDPs
 
 # solver algorithm
+#using SARSOP
 using QMDP
+importall POMDPs
 
-#rng = MersenneTwister(7)
+print("Solve for policy")
 pomdp = GamePOMDP()
+#solver = SARSOPSolver()
 solver = QMDPSolver()
 policy = solve(solver, pomdp)
 
-# make gif
-frames = Frames(MIME("image/png"), fps=2)
+init_dist = initial_state_distribution(pomdp)
+up = updater(policy)
 
-#ßrng = MensenneTwister(7)
-print("Simulating and generating the gif")
+print("Simulate")
+sim = HistoryRecorder(max_steps=50, rng=MersenneTwister(7))
+hist = simulate(sim,pomdp,policy,up,init_dist)
+
+# make gif
+#frames = Frames(MIME("image/png"), fps=2)
+
+#rng = MensenneTwister(7)
+#print("Simulating and generating the gif")
+#=
 for step in stepthrough(pomdp, policy, "a,r,sp,o,bp", max_steps=50)
     push!(frames, GameVis(pomdp, step...))
     print(".")
@@ -28,3 +37,4 @@ for step in stepthrough(pomdp, policy, "a,r,sp,o,bp", max_steps=50)
 end
 println(" Done.")
 write("out_pomdp.gif", frames)
+=#
