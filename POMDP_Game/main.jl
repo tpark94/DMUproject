@@ -23,6 +23,7 @@ print("Simulate")
 sim = HistoryRecorder(max_steps=50, rng=rng, show_progress=true)
 hist = simulate(sim, pomdp, policy)
 
+
 # make gif
 #frames = Frames(MIME("image/png"), fps=2)
 
