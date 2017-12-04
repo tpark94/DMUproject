@@ -8,21 +8,20 @@ using POMDPs
 
 # solver algorithm
 #using SARSOP
+#POMDPs.add("QMDP")
 using QMDP
 importall POMDPs
 
 print("Solve for policy")
+rng = MersenneTwister(7)
 pomdp = GamePOMDP()
 #solver = SARSOPSolver()
 solver = QMDPSolver()
 policy = solve(solver, pomdp)
 
-init_dist = initial_state_distribution(pomdp)
-up = updater(policy)
-
 print("Simulate")
-sim = HistoryRecorder(max_steps=50, rng=MersenneTwister(7))
-hist = simulate(sim,pomdp,policy,up,init_dist)
+sim = HistoryRecorder(max_steps=50, rng=rng, show_progress=true)
+hist = simulate(sim, pomdp, policy)
 
 # make gif
 #frames = Frames(MIME("image/png"), fps=2)

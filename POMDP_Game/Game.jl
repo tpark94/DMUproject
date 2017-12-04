@@ -6,12 +6,14 @@ module Game
 # https://github.com/zsunberg/LaserTag.jl.git
 
 # install the POMDPs.jl interface
-#Pkg.clone("https://github.com/sisl/POMDPs.jl.git")
-#Pkg.clone("https://github.com/JuliaArrays/StaticArrays.jl")
-#Pkg.add("Parameters")
-#Pkg.add("Distributions")
-#Pkg.add("AutoHashEquals")
-#Pkg.add("StatsBase")
+#=
+Pkg.clone("https://github.com/sisl/POMDPs.jl.git")
+Pkg.clone("https://github.com/JuliaArrays/StaticArrays.jl")
+Pkg.add("Parameters")
+Pkg.add("Distributions")
+Pkg.add("AutoHashEquals")
+Pkg.add("StatsBase")
+=#
 
 using StaticArrays
 using Parameters
