@@ -31,20 +31,21 @@ function rand(rng::AbstractRNG, b::GameTypeBelief)
 end
 
 iterator(b::GameTypeBelief) = b
+#=
 Base.start(b::GameTypeBelief) = 1
 Base.done(b::GameTypeBelief, i::Int) = i > 2
 function Base.next(b::GameTypeBelief, i::Int)
 
 
-    #=
+
     if d.terminal
         return (GameState(d.apos, d.tpos_prev, d.gametype, true), i+1)
     else
         return (GameState(d.apos, d.tpos_prev+ACTION_DIR[i], d.gametype, false), i+1)
     end
-    =#
-end
 
+end
+=#
 
 # pdf of pulling state (s) from distribution (b)
 # Beta(pursue, evade) = p(pursue)

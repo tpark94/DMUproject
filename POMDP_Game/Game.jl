@@ -29,7 +29,6 @@ export
     GamePOMDP,
 
     GameVis,
-    #updater,
     BayesianUpdater
 
 #####################################################
