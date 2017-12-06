@@ -28,20 +28,18 @@ export
     GameState,
     GamePOMDP,
 
-    GameVis
+    GameVis,
+    #updater,
+    BayesianUpdater
 
 #####################################################
 const Grid = SVector{2, Int64} # {col, row}
-
-# true - pursue target
-# false - evade target
-const target_true_intention = true # TRUE - we pursue
 
 # State space -- agent position (xa, ya) & target position (xt, yt)
 @auto_hash_equals immutable GameState
     agent::Grid
     target::Grid
-    tar_intent::Symbol
+    gametype::Symbol
     terminal::Bool
 end
 # tar_intent of GameState is NOT target's true intention, but rather
@@ -53,28 +51,20 @@ immutable World
     ncols::Int64
 end
 
-# find distance btw two agents
-function find_distance(s::GameState)
-    a1 = s.agent
-    a2 = s.target
-    dist = sqrt((a1[1]-a2[1])^2 + (a1[2]-a2[2])^2)
-    return dist
-end
-
 # must see if agent is inside grid world
 inside(w::World, c::Grid) = 0 < c[1] <= w.ncols && 0 < c[2] <= w.nrows
 
 # POMDP{state, action, observation}
-@with_kw immutable GamePOMDP <: POMDP{GameState, Symbol, Symbol}
+# @with_kw immutable GamePOMDP <: POMDP{GameState, Symbol, Symbol}
+@with_kw immutable GamePOMDP <: POMDP{GameState, Symbol, Grid}
     r_move::Float64       = -0.1 # reward for moving
     r_capture::Float64    = 100.0   # reward for capturing target
     r_caught::Float64     = -100.0
     discount::Float64     = 0.95 # gamma
     world::World          = World(15, 15)
-    true_intent::Bool     = target_true_intention
+    true_gametype::Symbol = :pursue
 end
 
-trueint(pomdp::GamePOMDP) = pomdp.true_intent
 ncols(pomdp::GamePOMDP) = pomdp.world.ncols
 nrows(pomdp::GamePOMDP) = pomdp.world.nrows
 
@@ -91,7 +81,7 @@ include("initial.jl")
 
 function reward(pomdp::GamePOMDP, s::GameState, a::Symbol, sp::GameState)
 
-    if s.tar_intent == :pursue # pursue
+    if s.gametype == :pursue # pursue
         if a==:stay && s.agent == s.target
             #@assert sp.terminal
             return pomdp.r_capture
@@ -113,6 +103,7 @@ function reward(pomdp::GamePOMDP, s::GameState, a::Symbol, sp::GameState)
     end
 end
 
+include("updater.jl")
 include("GameVis.jl")
 
 #######################################

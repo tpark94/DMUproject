@@ -3,16 +3,16 @@ immutable GameTransDist
     terminal::Bool
     apos::Grid
     tpos_prev::Grid
-    intention::Symbol # mirrors GameState's tar_intent
+    gametype::Symbol # mirrors GameState's tar_intent
     pd::SVector{5, Float64} # movement prob. dist. of TARGET
 end
-GameTransDist(apos::Grid, tpos_prev::Grid, intention::Symbol, pd::AbstractVector) =
-                        GameTransDist(false, apos, tpos_prev, intention, pd)
+GameTransDist(apos::Grid, tpos_prev::Grid, gametype::Symbol, pd::AbstractVector) =
+                        GameTransDist(false, apos, tpos_prev, gametype, pd)
 
 # sample from distribution
 function rand(rng::AbstractRNG, d::GameTransDist)
     if d.terminal
-        return GameState(d.apos, d.tpos_prev, d.intention, true)
+        return GameState(d.apos, d.tpos_prev, d.gametype, true)
     end
 
     # sample for target movement
@@ -23,7 +23,7 @@ function rand(rng::AbstractRNG, d::GameTransDist)
         tpos = d.tpos_prev
     end
 
-    return GameState(d.apos, tpos, d.intention, false)
+    return GameState(d.apos, tpos, d.gametype, false)
 end
 
 # prob. distribution function of distribution
@@ -56,9 +56,9 @@ Base.start(d::GameTransDist) = 1
 Base.done(d::GameTransDist, i::Int) = i > 5 || d.terminal && i > 1
 function Base.next(d::GameTransDist, i::Int)
     if d.terminal
-        return (GameState(d.apos, d.tpos_prev, d.intention, true), i+1)
+        return (GameState(d.apos, d.tpos_prev, d.gametype, true), i+1)
     else
-        return (GameState(d.apos, d.tpos_prev+ACTION_DIR[i], d.intention, false), i+1)
+        return (GameState(d.apos, d.tpos_prev+ACTION_DIR[i], d.gametype, false), i+1)
     end
 end
 
@@ -66,7 +66,7 @@ end
 function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
 
     if s.terminal || s.agent == s.target
-       return GameTransDist(true, s.agent, s.target, s.tar_intent, SVector(1., 0., 0., 0., 0.))
+       return GameTransDist(true, s.agent, s.target, s.gametype, SVector(1., 0., 0., 0., 0.))
     end
 
     pd = fill!(MVector{5, Float64}(), 0.0)
@@ -76,7 +76,7 @@ function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
     w = pomdp.world
 
     # Target's movement depends on its true intention
-    if target_true_intention # if pursuing target -- target moves randomly
+    if pomdp.true_gametype == :pursue # if pursuing target -- target moves randomly
         cnt = 0
         iswall = falses(1,5)
         for i in 1:4
@@ -133,5 +133,5 @@ function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
        apos_next = agent
     end
 
-    return GameTransDist(apos_next, target, s.tar_intent, pd)
+    return GameTransDist(apos_next, target, s.gametype, pd)
 end

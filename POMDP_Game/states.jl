@@ -26,7 +26,7 @@ function state_index(w::World, s::GameState)
     else
        a = s.agent
        t = s.target
-       if s.tar_intent == :pursue
+       if s.gametype == :pursue
            int = 1
        else
            int = 2

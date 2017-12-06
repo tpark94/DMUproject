@@ -19,9 +19,12 @@ pomdp = GamePOMDP()
 solver = QMDPSolver()
 policy = solve(solver, pomdp)
 
+print("Define Updater")
+updater = BayesianUpdater(pomdp)
+
 print("Simulate")
 sim = HistoryRecorder(max_steps=50, rng=rng, show_progress=true)
-hist = simulate(sim, pomdp, policy)
+hist = simulate(sim, pomdp, policy, updater)
 
 
 # make gif
