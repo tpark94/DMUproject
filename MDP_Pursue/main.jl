@@ -20,4 +20,4 @@ for (a, r, s) in stepthrough(mdp, policy, "a,r,s", max_steps = 150)
     @printf("s: %-26s  a: %-6s\n", s, a)
 end
 println(" Done.")
-write("out_pursue.gif", frames)
+write("out_pursue2.gif", frames)

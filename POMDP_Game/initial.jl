@@ -19,4 +19,12 @@ function pdf(b::GameInitialBelief, s::GameState)
   end
 end
 
-initial_state_distribution(pomdp::GamePOMDP) = GameInitialBelief((1,2), (8,10))
+# initial belief
+initial_state_distribution(pomdp::GamePOMDP) = GameInitialBelief(pomdp.init_agent, pomdp.init_target)
+
+function initialize_belief(up::BayesianUpdater, d::GameInitialBelief)
+
+    init_state_dist = initial_state_distribution(up.model)
+
+    return GameTypeBelief(init_state_dist.agent_init, init_state_dist.target_init, 1, 1, 0.5, false)
+end

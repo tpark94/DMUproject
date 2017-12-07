@@ -9,7 +9,7 @@ end
 GameTransDist(apos::Grid, tpos_prev::Grid, gametype::Symbol, pd::AbstractVector) =
                         GameTransDist(false, apos, tpos_prev, gametype, pd)
 
-# sample from distribution
+# sample from transition distribution
 function rand(rng::AbstractRNG, d::GameTransDist)
     if d.terminal
         return GameState(d.apos, d.tpos_prev, d.gametype, true)
@@ -125,7 +125,7 @@ function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
 
     # transition is deterministic
     #   given action (a), sp has no uncertainty
-    #   s.tar_intent isn't affected by transition
+    #   s.gametype isn't affected by transition
     a_ind = action_index(pomdp, a)
     if inside(w, agent + ACTION_DIR[a_ind])
        apos_next = agent + ACTION_DIR[a_ind]

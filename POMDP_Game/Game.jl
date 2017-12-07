@@ -62,6 +62,8 @@ inside(w::World, c::Grid) = 0 < c[1] <= w.ncols && 0 < c[2] <= w.nrows
     discount::Float64     = 0.95 # gamma
     world::World          = World(15, 15)
     true_gametype::Symbol = :pursue
+    init_agent::Grid      = (2,1)
+    init_target::Grid     = (5,11)
 end
 
 ncols(pomdp::GamePOMDP) = pomdp.world.ncols
@@ -76,13 +78,12 @@ include("states.jl")
 include("actions.jl")
 include("transition.jl")
 include("observations.jl")
-include("initial.jl")
 
 function reward(pomdp::GamePOMDP, s::GameState, a::Symbol, sp::GameState)
 
     if s.gametype == :pursue # pursue
-        if a==:stay && s.agent == s.target
-            #@assert sp.terminal
+        if s.agent == s.target
+            @assert sp.terminal
             return pomdp.r_capture
         elseif action_index(pomdp, a) <= 4
             return pomdp.r_move
@@ -91,7 +92,7 @@ function reward(pomdp::GamePOMDP, s::GameState, a::Symbol, sp::GameState)
         end
     else # evade
         if s.agent == s.target
-            #@assert sp.terminal
+            @assert sp.terminal
             return pomdp.r_caught
         end
         if action_index(pomdp, a) <= 4
@@ -103,6 +104,7 @@ function reward(pomdp::GamePOMDP, s::GameState, a::Symbol, sp::GameState)
 end
 
 include("updater.jl")
+include("initial.jl")
 include("GameVis.jl")
 
 #######################################
