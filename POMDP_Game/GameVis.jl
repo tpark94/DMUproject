@@ -9,6 +9,7 @@ type GameVis
     b::Nullable{Any}
 end
 GameVis(m; s=nothing, a=nothing, o=nothing, b=nothing, r=nothing) = GameVis(m, a, r, s, o, b)
+#GameVis(m; s=nothing, a=nothing, r=nothing) = GameVis(m, a, r, s)
 GameVis(m::GamePOMDP, arsobp::Tuple) = GameVis(m, arsobp...)
 
 Base.show(io::IO, mime::MIME"image/svg+xml", v::GameVis) = show(io, mime, tikz_pic(v))
@@ -53,9 +54,10 @@ function tikz_pic(v::GameVis)
             aname = ACTION_NAMES[action_index(m, get(v.a))]
             println(o, "\\node[above right] at ($((agent[1]-1) * sqsize), $((agent[2]-1) * sqsize)) {$aname};")
         end
-        if !isnull(v.r)
-            rtext = @sprintf("%0.2f", get(v.r))
-            println(o, "\\node[below right] at ($((agent[1]-1) * sqsize), $((agent[2]-1) * sqsize)) {$rtext};")
+        if !isnull(v.b)
+            belief = get(v.b)
+            btext = @sprintf("%0.2f", belief.p_pursue)
+            println(o, "\\node[below right] at ($((agent[1]-1) * sqsize), $((agent[2]-1) * sqsize)) {$btext};")
         end
 
     end

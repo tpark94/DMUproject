@@ -30,6 +30,7 @@ export
     Grid,
     EvadeState,
     EvadeMDP,
+    states,
 
     EvadeVis
 
@@ -54,10 +55,11 @@ inside(w::World, c::Grid) = 0 < c[1] <= w.ncols && 0 < c[2] <= w.nrows
 
 # MDP when target's KNOWN intention is to evade - agent pursues
 @with_kw immutable EvadeMDP <: MDP{EvadeState, Symbol}
-    r_move::Float64    = -0.1 # reward for moving
-    r_caught::Float64 = -10.0   # reward for capturing target
-    discount::Float64  = 0.95 # gamma
+    r_move::Float64    = -1.0 # reward for moving
+    r_caught::Float64 = -100.0   # reward for capturing target
+    discount::Float64  = 0.9 # gamma
     world::World       = World(15, 15)
+    tp::Float64        = 0.5
 end
 
 ncols(mdp::EvadeMDP) = mdp.world.ncols

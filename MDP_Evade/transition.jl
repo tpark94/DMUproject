@@ -75,34 +75,33 @@ function transition(mdp::EvadeMDP, s::EvadeState, a::Symbol)
     # transition probabilities (pd) of the target
     if target[1] == agent[1] # above or below
         if target[2] < agent[2]
-            pd[1] += 0.8
+            pd[1] += 2*mdp.tp
         elseif target[2] > agent[2]
-            pd[3] += 0.8
+            pd[3] += 2*mdp.tp
         end
     elseif target[1] < agent[1] # target on right
         if target[2] < agent[2]
-            pd[1] += 0.4
-            pd[2] += 0.4
+            pd[1] += mdp.tp
+            pd[2] += mdp.tp
         elseif target[2] > agent[2]
-            pd[2] += 0.4
-            pd[3] += 0.4
+            pd[2] += mdp.tp
+            pd[3] += mdp.tp
         else
-            pd[2] += 0.8
+            pd[2] += 2*mdp.tp
         end
     elseif target[1] > agent[1] # target on left
         if target[2] < agent[2]
-            pd[1] += 0.4
-            pd[4] += 0.4
+            pd[1] += mdp.tp
+            pd[4] += mdp.tp
         elseif target[2] > agent[2]
-            pd[3] += 0.4
-            pd[4] += 0.4
+            pd[3] += mdp.tp
+            pd[4] += mdp.tp
         else
-            pd[4] += 0.8
+            pd[4] += 2*mdp.tp
         end
     end
 
     pd[5] = 1.0 - sum(pd)
-
 
     # move the agent
     a_ind = action_index(mdp, a)

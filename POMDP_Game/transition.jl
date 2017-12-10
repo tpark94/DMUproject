@@ -91,36 +91,38 @@ function transition(pomdp::GamePOMDP, s::GameState, a::Symbol)
                 pd[i] = rate
             end
         end
+
     else # if evading target -- target comes after you!
         if target[1] == agent[1] # above or below
             if target[2] < agent[2]
-                pd[1] += 0.8
+                pd[1] += 2*pomdp.tp
             elseif target[2] > agent[2]
-                pd[3] += 0.8
+                pd[3] += 2*pomdp.tp
             end
         elseif target[1] < agent[1] # target on right
             if target[2] < agent[2]
-                pd[1] += 0.4
-                pd[2] += 0.4
+                pd[1] += pomdp.tp
+                pd[2] += pomdp.tp
             elseif target[2] > agent[2]
-                pd[2] += 0.4
-                pd[3] += 0.4
+                pd[2] += pomdp.tp
+                pd[3] += pomdp.tp
             else
-                pd[2] += 0.8
+                pd[2] += 2*pomdp.tp
             end
         elseif target[1] > agent[1] # target on left
             if target[2] < agent[2]
-                pd[1] += 0.4
-                pd[4] += 0.4
+                pd[1] += pomdp.tp
+                pd[4] += pomdp.tp
             elseif target[2] > agent[2]
-                pd[3] += 0.4
-                pd[4] += 0.4
+                pd[3] += pomdp.tp
+                pd[4] += pomdp.tp
             else
-                pd[4] += 0.8
+                pd[4] += 2*pomdp.tp
             end
         end
 
         pd[5] = 1.0 - sum(pd)
+
     end
 
     # transition is deterministic

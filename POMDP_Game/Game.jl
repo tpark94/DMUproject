@@ -29,8 +29,9 @@ export
     GamePOMDP,
 
     GameVis,
-    BayesianUpdater
-
+    BayesianUpdater,
+    GameTypeBelief,
+    pdf
 #####################################################
 const Grid = SVector{2, Int64} # {col, row}
 
@@ -56,14 +57,15 @@ inside(w::World, c::Grid) = 0 < c[1] <= w.ncols && 0 < c[2] <= w.nrows
 # POMDP{state, action, observation}
 # @with_kw immutable GamePOMDP <: POMDP{GameState, Symbol, Symbol}
 @with_kw immutable GamePOMDP <: POMDP{GameState, Symbol, Grid}
-    r_move::Float64       = -0.1 # reward for moving
+    r_move::Float64       = -1 # reward for moving
     r_capture::Float64    = 100.0   # reward for capturing target
     r_caught::Float64     = -100.0
-    discount::Float64     = 0.95 # gamma
+    discount::Float64     = 0.9 # gamma
     world::World          = World(15, 15)
     true_gametype::Symbol = :pursue
-    init_agent::Grid      = (2,1)
-    init_target::Grid     = (5,11)
+    init_agent::Grid      = (1,2)
+    init_target::Grid     = (10,8)
+    tp::Float64           = 0.4 # governs transition probability of the target
 end
 
 ncols(pomdp::GamePOMDP) = pomdp.world.ncols

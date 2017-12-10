@@ -30,11 +30,12 @@ export
     Grid,
     PursueState,
     PursueMDP,
+    states,
 
     PursueVis
 
 #####################################################
-const Grid = SVector{2, Int64} # {col, row}
+const Grid = SVector{2, Int64} # {col, row}s
 
 # State space -- agent position (xa, ya) & target position (xt, yt)
 @auto_hash_equals immutable PursueState
@@ -54,9 +55,9 @@ inside(w::World, c::Grid) = 0 < c[1] <= w.ncols && 0 < c[2] <= w.nrows
 
 # MDP when target's KNOWN intention is to evade - agent pursues
 @with_kw immutable PursueMDP <: MDP{PursueState, Symbol}
-    r_move::Float64    = -0.1 # reward for moving
+    r_move::Float64    = -1.0 # reward for moving
     r_capture::Float64 = 100.0   # reward for capturing target
-    discount::Float64  = 0.95 # gamma
+    discount::Float64  = 0.9 # gamma
     world::World       = World(15, 15)
 end
 

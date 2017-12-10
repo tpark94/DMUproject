@@ -1,5 +1,7 @@
 # (Z) - observation space
 
+n_observations(pomdp::GamePOMDP) = 1/npos(pomdp.world)
+
 # observation output distribution
 #   - binary (intention)
 immutable GameObsDist

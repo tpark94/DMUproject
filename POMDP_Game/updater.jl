@@ -14,7 +14,6 @@ struct BayesianUpdater <: Updater
     model::GamePOMDP
 end
 
-
 # sample from belief distribution -- output GameState
 function rand(rng::AbstractRNG, b::GameTypeBelief)
 
@@ -76,6 +75,7 @@ function update(up::BayesianUpdater, b::GameTypeBelief, a::Symbol, o::Grid)
     if b.terminal
         return GameTypeBelief(b.agent, b.target, b.pursue, b.evade, b.p_pursue, true)
     end
+
 
     apos_prev = b.agent
     tpos_prev = b.target
